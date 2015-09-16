@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class GameRule : MonoBehaviour {
 
@@ -20,32 +21,95 @@ public class GameRule : MonoBehaviour {
 		Draw,
 	}
 
+	[Header("自分の手")]
 	[SerializeField]GameObject Gu;
 	[SerializeField]GameObject Choki;
 	[SerializeField]GameObject Pa;
 
+	[Header("相手の手")]
+	[SerializeField]GameObject EnemyGu;
+	[SerializeField]GameObject EnemyChoki;
+	[SerializeField]GameObject EnemyPa;
+
+	[Header("ゲーム開始ボタン")] 
+	[SerializeField]GameObject GameStartButton;
+
+	[Header("ゲーム進行用のテキスト表示場所")]
+	[SerializeField]GameObject CenterText;
+
+	[Header("じゃんけん開始の文言")]
+	[SerializeField]GameObject StartText;
+
+	[Header("手を選択時の文言表示")]
+	[SerializeField]GameObject Pon;
+
+	private string[] GameText = new string[] {"じゃんけん", "ぽん", "勝ち", "負け"};
+
 	// 初期化.
 	void Start () 
 	{
-	
+		// じゃんけん開始の文言を非表示.
+		StartText.SetActive (false);
+
+		// 選択時の文言を非表示.
+		Pon.SetActive(false);
+
+		// ゲームテキストの設定.
+		CenterText.SetActive (false);
+		CenterText.GetComponent<Text>().text = GameText[0];
+
+		// 手を非表示.
+		Gu.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+		Choki.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+		Pa.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+		EnemyGu.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+		EnemyChoki.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+		EnemyPa.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+	}
+
+	// ゲーム開始.
+	public void OnGameStart()
+	{
+		// ボタンを非表示.
+		GameStartButton.SetActive (false);
+
+		// じゃんけん開始の文言を表示.
+//		StartText.SetActive (true);
+		CenterText.SetActive (true);
+
+		// 手を表示.
+		Gu.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 1.0f);
+		Choki.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 1.0f);
+		Pa.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 1.0f);
+		EnemyGu.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 1.0f);
+		EnemyChoki.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 1.0f);
+		EnemyPa.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 1.0f);
 	}
 	
 	// 更新.
 	void Update () 
 	{
-		// 自分の手を選択.
+		// マウスクリック.
 		if (Input.GetMouseButtonDown(0)) 
 		{
 			Vector3    aTapPoint   = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 			Collider2D aCollider2d = Physics2D.OverlapPoint(aTapPoint);
-			
+
+			// 手を選択.
 			if (aCollider2d) 
 			{
+				// じゃんけん開始の文言を非表示.
+//				StartText.SetActive (false);
+				CenterText.GetComponent<Text>().text = GameText[1];
+
 				GameObject obj = aCollider2d.transform.gameObject;
 				Debug.Log("自分の手" +obj.name);
 				Debug.Log("自分の手" + SelectHand(obj.name));
+				SelectHandIndicator(SelectHand(obj.name), true);
+
 				// 相手の選んだ手と勝負
 				Hand enemyHand = HandChast(RandomHand());
+				SelectHandIndicator(enemyHand, false);
 				Debug.Log("相手の手" + enemyHand);
 				Debug.Log(CheckJanken(SelectHand(obj.name), enemyHand));
 			}
@@ -137,6 +201,58 @@ public class GameRule : MonoBehaviour {
 			break;
 		}
 		return retHand;
+	}
+
+
+	/// <summary>
+	/// 選んだ手のみ表示.
+	/// </summary>
+	/// <param name="hand">選んだ手.</param>
+	/// <param name="friendOrFoe">自分の手 <c>true</c> 相手の手<c>false</c>.</param>
+	void SelectHandIndicator(Hand hand, bool friendOrFoe)
+	{
+		// 自分の手.
+		if(true == friendOrFoe)
+		{
+			switch (hand) 
+			{
+			case Hand.Gu:
+				Choki.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+				Pa.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+				break;
+
+			case Hand.Choki:
+				Gu.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+				Pa.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+				break;
+
+			case Hand.Pa:
+				Gu.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+				Choki.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+				break;
+			}
+		}
+		// 相手の手.
+		else
+		{
+			switch (hand) 
+			{
+			case Hand.Gu:
+				EnemyChoki.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+				EnemyPa.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+				break;
+				
+			case Hand.Choki:
+				EnemyGu.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+				EnemyPa.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+				break;
+				
+			case Hand.Pa:
+				EnemyGu.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+				EnemyChoki.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+				break;
+			}
+		}
 	}
 
 }
