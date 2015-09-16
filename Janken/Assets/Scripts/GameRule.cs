@@ -33,30 +33,22 @@ public class GameRule : MonoBehaviour {
 
 	[Header("ゲーム開始ボタン")] 
 	[SerializeField]GameObject GameStartButton;
+	[Header("もう1度プレイするボタン")]
+	[SerializeField]GameObject RetryButton;
 
 	[Header("ゲーム進行用のテキスト表示場所")]
 	[SerializeField]GameObject CenterText;
-
-	[Header("じゃんけん開始の文言")]
-	[SerializeField]GameObject StartText;
-
-	[Header("手を選択時の文言表示")]
-	[SerializeField]GameObject Pon;
 
 	private string[] GameText = new string[] {"じゃんけん", "ぽん", "勝ち", "敗け", "あいこ"};
 
 	// 初期化.
 	void Start () 
 	{
-		// じゃんけん開始の文言を非表示.
-		StartText.SetActive (false);
-
-		// 選択時の文言を非表示.
-		Pon.SetActive(false);
-
 		// ゲームテキストの設定.
 		CenterText.SetActive (false);
-		CenterText.GetComponent<Text>().text = GameText[0];
+
+		// リトライボタン.
+		RetryButton.SetActive (false);
 
 		// 手を非表示.
 		Gu.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
@@ -72,9 +64,11 @@ public class GameRule : MonoBehaviour {
 	{
 		// ボタンを非表示.
 		GameStartButton.SetActive (false);
+		// リトライボタン.
+		RetryButton.SetActive (false);
 
 		// じゃんけん開始の文言を表示.
-//		StartText.SetActive (true);
+		CenterText.GetComponent<Text>().text = GameText[0];
 		CenterText.SetActive (true);
 
 		// 手を表示.
@@ -113,6 +107,7 @@ public class GameRule : MonoBehaviour {
 				Debug.Log("相手の手" + enemyHand);
 //				Debug.Log(CheckJanken(SelectHand(obj.name), enemyHand));
 				VictoryOrDefeatIndicator(CheckJanken(SelectHand(obj.name), enemyHand));
+				RetryButton.SetActive(true);
 			}
 		}
 	}
