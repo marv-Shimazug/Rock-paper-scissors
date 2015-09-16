@@ -93,7 +93,6 @@ public class GameRule : MonoBehaviour {
 			if (aCollider2d) 
 			{
 				// じゃんけん開始の文言を非表示.
-//				StartText.SetActive (false);
 				CenterText.GetComponent<Text>().text = GameText[1];
 
 				GameObject obj = aCollider2d.transform.gameObject;
