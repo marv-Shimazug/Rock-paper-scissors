@@ -39,16 +39,29 @@ public class GameRule : MonoBehaviour {
 	[Header("ゲーム進行用のテキスト表示場所")]
 	[SerializeField]GameObject CenterText;
 
+	// ゲーム進行用テキスト.
 	private string[] GameText = new string[] {"じゃんけん", "ぽん", "勝ち", "敗け", "あいこ"};
+
+	[Header("勝利回数の表示")]
+	[SerializeField]GameObject VictoryNumPlace;
+	// 自分の勝利回数.
+	private int VictoryNum;
 
 	// 初期化.
 	void Start () 
 	{
+		// 勝利回数.
+		VictoryNum = 0;
+
 		// ゲームテキストの設定.
 		CenterText.SetActive (false);
 
 		// リトライボタン.
 		RetryButton.SetActive (false);
+
+		// 勝利回数.
+		VictoryNumPlace.SetActive (false);
+		VictoryNumIndicator(VictoryNum);
 
 		// 手を非表示.
 		Gu.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
@@ -70,6 +83,9 @@ public class GameRule : MonoBehaviour {
 		// じゃんけん開始の文言を表示.
 		CenterText.GetComponent<Text>().text = GameText[0];
 		CenterText.SetActive (true);
+
+		// 勝利回数.
+		VictoryNumPlace.SetActive (true);
 
 		// 手を表示.
 		Gu.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 1.0f);
@@ -105,7 +121,10 @@ public class GameRule : MonoBehaviour {
 				SelectHandIndicator(enemyHand, false);
 				Debug.Log("相手の手" + enemyHand);
 //				Debug.Log(CheckJanken(SelectHand(obj.name), enemyHand));
+				// 勝敗の表示.
 				VictoryOrDefeatIndicator(CheckJanken(SelectHand(obj.name), enemyHand));
+				// 勝利回数の表示.
+				VictoryNumIndicator(VictoryNum);
 				RetryButton.SetActive(true);
 			}
 		}
@@ -164,6 +183,8 @@ public class GameRule : MonoBehaviour {
 		}
 		else if (2 == c) 
 		{
+			// 勝利回数の更新.
+			VictoryNum ++;
 			return VictoryOrDefeat.Victory;
 		} 
 		else 
@@ -190,6 +211,12 @@ public class GameRule : MonoBehaviour {
 			break;
 
 		}
+	}
+
+	// 勝ち数の表示.
+	void VictoryNumIndicator(int victoryNum)
+	{
+		VictoryNumPlace.GetComponent<Text> ().text = "勝利回数：" + victoryNum;
 	}
 
 	
