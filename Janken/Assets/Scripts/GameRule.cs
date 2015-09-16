@@ -42,16 +42,20 @@ public class GameRule : MonoBehaviour {
 	// ゲーム進行用テキスト.
 	private string[] GameText = new string[] {"じゃんけん", "ぽん", "勝ち", "敗け", "あいこ"};
 
-	[Header("勝利回数の表示")]
+	[Header("自分の勝利結果表示")]
 	[SerializeField]GameObject VictoryNumPlace;
 	// 自分の勝利回数.
 	private int VictoryNum;
+	// 自分の連続勝利回数.
+	public int WinningStreak;
 
 	// 初期化.
 	void Start () 
 	{
 		// 勝利回数.
 		VictoryNum = 0;
+		// 連勝数.
+		WinningStreak = 0;
 
 		// ゲームテキストの設定.
 		CenterText.SetActive (false);
@@ -61,7 +65,7 @@ public class GameRule : MonoBehaviour {
 
 		// 勝利回数.
 		VictoryNumPlace.SetActive (false);
-		VictoryNumIndicator(VictoryNum);
+		VictoryNumIndicator(VictoryNum, WinningStreak);
 
 		// 手を非表示.
 		Gu.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
@@ -121,14 +125,19 @@ public class GameRule : MonoBehaviour {
 				SelectHandIndicator(enemyHand, false);
 				Debug.Log("相手の手" + enemyHand);
 //				Debug.Log(CheckJanken(SelectHand(obj.name), enemyHand));
+				VictoryOrDefeat myResult = VictoryOrDefeat.Draw;
+				myResult = CheckJanken(SelectHand(obj.name), enemyHand);
 				// 勝敗の表示.
-				VictoryOrDefeatIndicator(CheckJanken(SelectHand(obj.name), enemyHand));
+				VictoryOrDefeatIndicator(myResult);
+				// 勝利回数の更新.
+				UpdateWiningNum(myResult);
 				// 勝利回数の表示.
-				VictoryNumIndicator(VictoryNum);
+				VictoryNumIndicator(VictoryNum, WinningStreak);
 				RetryButton.SetActive(true);
 			}
 		}
 	}
+
 
 	/// <summary>
 	/// 手をランダムで選択.
@@ -183,8 +192,6 @@ public class GameRule : MonoBehaviour {
 		}
 		else if (2 == c) 
 		{
-			// 勝利回数の更新.
-			VictoryNum ++;
 			return VictoryOrDefeat.Victory;
 		} 
 		else 
@@ -192,6 +199,7 @@ public class GameRule : MonoBehaviour {
 			return VictoryOrDefeat.Defeat;
 		}
 	}
+
 
 	// 勝ち負けの表示.
 	void VictoryOrDefeatIndicator(VictoryOrDefeat myResult)
@@ -214,12 +222,35 @@ public class GameRule : MonoBehaviour {
 	}
 
 	// 勝ち数の表示.
-	void VictoryNumIndicator(int victoryNum)
+	void VictoryNumIndicator(int victoryNum, int winningStreak)
 	{
-		VictoryNumPlace.GetComponent<Text> ().text = "勝利回数：" + victoryNum;
+		VictoryNumPlace.GetComponent<Text> ().text = "勝利回数：" + victoryNum + "\n"
+			+ "連勝数：" + winningStreak + "\n";
 	}
 
-	
+
+	// 累計勝利回数、連勝数の更新.
+	void UpdateWiningNum(VictoryOrDefeat myResult)
+	{
+		switch (myResult)
+		{
+		case VictoryOrDefeat.Victory:
+			VictoryNum++;
+			WinningStreak++;
+			break;
+			
+		case VictoryOrDefeat.Defeat:
+			WinningStreak = 0;
+			break;
+			
+		case VictoryOrDefeat.Draw:
+			WinningStreak = 0;
+			break;
+			
+		}
+	}
+
+
 	/// <summary>
 	/// int型をHand型にキャスト.
 	/// </summary>
