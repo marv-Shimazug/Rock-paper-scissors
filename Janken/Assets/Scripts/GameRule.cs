@@ -66,6 +66,12 @@ public class GameRule : MonoBehaviour {
 	// 現在のゲームモード(デバッグ用).
 	private DebugMode NowDebugMode;
 
+
+	void Awake () 
+	{
+		Screen.SetResolution (800, 600, false);
+	}
+
 	// 初期化.
 	void Start () 
 	{
