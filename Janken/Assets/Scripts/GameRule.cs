@@ -21,6 +21,15 @@ public class GameRule : MonoBehaviour {
 		Draw,
 	}
 
+
+	enum DebugMode
+	{
+		Normal = 0,	// 通常のランダムじゃんけん
+		Victory,	// 確実に自分の勝ち.
+		Defeat,	// 確実に自分の負け.
+		Draw,		// 確実にあいこ.
+	}
+
 	[Header("自分の手")]
 	[SerializeField]GameObject Gu;
 	[SerializeField]GameObject Choki;
@@ -42,6 +51,11 @@ public class GameRule : MonoBehaviour {
 	// ゲーム進行用テキスト.
 	private string[] GameText = new string[] {"じゃんけん", "ぽん", "勝ち", "敗け", "あいこ"};
 
+	// デバッグモード用テキスト.
+	private string[] DebugModeText = new string[]{"通常", "確実に勝ち", "確実に敗け", "確実にあいこ"};
+	[Header("デバッグモードボタンの表示テキスト")]
+	[SerializeField] GameObject DebugModeButtonText;
+
 	[Header("自分の勝利結果表示")]
 	[SerializeField]GameObject VictoryNumPlace;
 	// 自分の勝利回数.
@@ -49,9 +63,15 @@ public class GameRule : MonoBehaviour {
 	// 自分の連続勝利回数.
 	public int WinningStreak;
 
+	// 現在のゲームモード(デバッグ用).
+	private DebugMode NowDebugMode;
+
 	// 初期化.
 	void Start () 
 	{
+		// デバッグモード.
+		NowDebugMode = DebugMode.Normal;
+
 		// 勝利回数.
 		VictoryNum = 0;
 		// 連勝数.
@@ -74,6 +94,16 @@ public class GameRule : MonoBehaviour {
 		EnemyGu.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
 		EnemyChoki.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
 		EnemyPa.GetComponent<SpriteRenderer> ().material.color = new Color (1.0f, 1.0f, 1.0f, 0.0f);
+	}
+
+	public void OnDebugModeChange()
+	{
+		NowDebugMode ++;
+		if(DebugMode.Draw < NowDebugMode)
+		{
+			NowDebugMode = DebugMode.Normal;
+		}
+		DebugModeButtonText.GetComponent<Text> ().text = NowDebugModeText ();
 	}
 
 	// ゲーム開始.
@@ -121,7 +151,7 @@ public class GameRule : MonoBehaviour {
 				SelectHandIndicator(SelectHand(obj.name), true);
 
 				// 相手の選んだ手と勝負
-				Hand enemyHand = HandChast(RandomHand());
+				Hand enemyHand = ChoiseEnemyHand(SelectHand(obj.name));
 				SelectHandIndicator(enemyHand, false);
 				Debug.Log("相手の手" + enemyHand);
 //				Debug.Log(CheckJanken(SelectHand(obj.name), enemyHand));
@@ -136,6 +166,7 @@ public class GameRule : MonoBehaviour {
 				RetryButton.SetActive(true);
 			}
 		}
+
 	}
 
 
@@ -149,6 +180,53 @@ public class GameRule : MonoBehaviour {
 		return hand;
 	}
 
+	// 敵の手の選び方.
+	Hand ChoiseEnemyHand(Hand myHand)
+	{
+		Hand enemyHand = Hand.Max;
+		switch (NowDebugMode) 
+		{
+		case DebugMode.Normal:
+			enemyHand = HandChast(RandomHand());
+			break;
+			
+		case DebugMode.Victory:
+			switch(myHand)
+			{
+			case Hand.Gu:
+				enemyHand = Hand.Choki;
+				break;
+			case Hand.Choki:
+				enemyHand = Hand.Pa;
+				break;
+			case Hand.Pa:
+				enemyHand = Hand.Gu;
+				break;
+			}
+			break;
+			
+		case DebugMode.Defeat:
+			switch(myHand)
+			{
+			case Hand.Gu:
+				enemyHand = Hand.Pa;
+				break;
+			case Hand.Choki:
+				enemyHand = Hand.Gu;
+				break;
+			case Hand.Pa:
+				enemyHand = Hand.Choki;
+				break;
+			}
+			break;
+			
+		case DebugMode.Draw:
+			enemyHand = myHand;
+			break;
+			
+		}
+		return enemyHand;
+	}
 
 	/// <summary>
 	/// 自分が選んだ手をHand型で返却.
@@ -226,6 +304,7 @@ public class GameRule : MonoBehaviour {
 	{
 		VictoryNumPlace.GetComponent<Text> ().text = "勝利回数：" + victoryNum + "\n"
 			+ "連勝数：" + winningStreak + "\n";
+
 	}
 
 
@@ -277,6 +356,7 @@ public class GameRule : MonoBehaviour {
 	}
 
 
+
 	/// <summary>
 	/// 選んだ手のみ表示.
 	/// </summary>
@@ -326,6 +406,31 @@ public class GameRule : MonoBehaviour {
 				break;
 			}
 		}
+	}
+
+	// 現在のデバッグモードのテキスト.
+	private string NowDebugModeText()
+	{
+		string nowMessage = "";
+		switch (NowDebugMode) 
+		{
+		case DebugMode.Normal:
+			nowMessage = DebugModeText[0];
+			break;
+
+		case DebugMode.Victory:
+			nowMessage = DebugModeText[1];
+			break;
+		
+		case DebugMode.Defeat:
+			nowMessage = DebugModeText[2];
+			break;
+		
+		case DebugMode.Draw:
+			nowMessage = DebugModeText[3];
+			break;
+		}
+		return nowMessage;
 	}
 
 }
