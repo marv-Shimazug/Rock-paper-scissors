@@ -43,7 +43,7 @@ public class GameRule : MonoBehaviour {
 	[Header("手を選択時の文言表示")]
 	[SerializeField]GameObject Pon;
 
-	private string[] GameText = new string[] {"じゃんけん", "ぽん", "勝ち", "負け"};
+	private string[] GameText = new string[] {"じゃんけん", "ぽん", "勝ち", "敗け", "あいこ"};
 
 	// 初期化.
 	void Start () 
@@ -111,7 +111,8 @@ public class GameRule : MonoBehaviour {
 				Hand enemyHand = HandChast(RandomHand());
 				SelectHandIndicator(enemyHand, false);
 				Debug.Log("相手の手" + enemyHand);
-				Debug.Log(CheckJanken(SelectHand(obj.name), enemyHand));
+//				Debug.Log(CheckJanken(SelectHand(obj.name), enemyHand));
+				VictoryOrDefeatIndicator(CheckJanken(SelectHand(obj.name), enemyHand));
 			}
 		}
 	}
@@ -174,6 +175,26 @@ public class GameRule : MonoBehaviour {
 		else 
 		{
 			return VictoryOrDefeat.Defeat;
+		}
+	}
+
+	// 勝ち負けの表示.
+	void VictoryOrDefeatIndicator(VictoryOrDefeat myResult)
+	{
+		switch (myResult)
+		{
+		case VictoryOrDefeat.Victory:
+			CenterText.GetComponent<Text>().text = GameText[2];
+			break;
+
+		case VictoryOrDefeat.Defeat:
+			CenterText.GetComponent<Text>().text = GameText[3];
+			break;
+
+		case VictoryOrDefeat.Draw:
+			CenterText.GetComponent<Text>().text = GameText[4];
+			break;
+
 		}
 	}
 
